@@ -44,24 +44,62 @@ secrets + auth + ingest + agent-loop + memory + gatekeeper + vectorstore + mdl-e
 
 ## Arsitektur
 
+### Komponen
+
+```mermaid
+flowchart TB
+    consumer["Consumer apps<br/>(web / mobile / internal)"]
+    console["Poros Console<br/>(React)"]
+
+    subgraph api["FastAPI"]
+        direction TB
+        v1["/v1/query · /v1/chat · /v1/chat/stream<br/>/v1/retrieve · /v1/documents/{id}/file"]
+        admin["/admin/* (control plane)"]
+        pipeline["Agent pipeline<br/>(lihat alur di bawah)"]
+        govern{{"govern()<br/>Wren policy + RLAC + CLAC + read-only"}}
+        v1 --> pipeline
+        pipeline -- "setiap SQL" --> govern
+    end
+
+    consumer -- "X-API-Key + Bearer JWT" --> v1
+    console -- "X-Admin-Key" --> admin
+
+    subgraph data["Sumber data tenant"]
+        db[("DB tenant<br/>BigQuery / Postgres / MySQL / DuckDB<br/>BigQuery keyless ADC/WIF")]
+        vec[("Vector store<br/>Postgres scan · pgvector · Qdrant (seam)")]
+        mem[("Memory store<br/>per tenant + user")]
+    end
+
+    govern --> db
+    pipeline -- "search_docs" --> vec
+    pipeline -- "recall_memory" --> mem
+
+    subgraph platform["Penyimpanan platform"]
+        meta[("Metadata<br/>PostgreSQL (ADMIN_DB_URL)")]
+        secrets[("Secrets<br/>Fernet | Vault KV v2")]
+    end
+
+    admin --> meta
+    admin --> secrets
+    api -. "provider LLM via LiteLLM" .-> llm["LLM providers"]
 ```
- Consumer apps (web/mobile/internal)        Poros Console (React)
-        │  X-API-Key + Bearer JWT                 │  X-Admin-Key
-        ▼                                         ▼
- ┌─────────────────────────────── FastAPI ───────────────────────────────┐
- │  /v1/query · /v1/chat · /v1/chat/stream · /v1/retrieve                │
- │  /v1/documents/{id}/file            /admin/* (control plane)         │
- │                                                                       │
- │  gatekeeper → router → agent(tool-loop) → ~~~~~~~~~ → verifier (flags)│
- │                          │ run_sql        govern()  ▲                 │
- │                          │ search_docs   (Wren policy + RLAC + CLAC   │
- │                          │ recall_memory  + read-only)                │
- └──────────┬──────────────┴────────────┬──────────────┬────────────────┘
-            ▼                           ▼              ▼
-   DB tenant (BigQuery/MySQL/…)   Vector store     Memory store
-   keyless ADC/WIF utk BigQuery   (Postgres, seam  (per tenant+user)
-                                   pgvector/Qdrant)
-   Secrets → Fernet │ Vault KV v2          Metadata → PostgreSQL (ADMIN_DB_URL)
+
+### Alur satu pertanyaan chat
+
+```mermaid
+flowchart LR
+    q(["Pertanyaan user"]) --> gk["Gatekeeper<br/>cek injection + intent"]
+    gk -- "ditolak" --> block(["Blocked"])
+    gk --> router["Router<br/>pilih business + datasource"]
+    router --> agent["Agent tool-loop"]
+    agent -- "run_sql" --> gov{{"govern()<br/>read-only · allowlist<br/>RLAC · CLAC"}}
+    gov -- "lolos" --> db[("DB tenant")]
+    gov -- "ditolak + alasan" --> agent
+    db -- "baris (PII dimasker utk LLM)" --> agent
+    agent -- "search_docs" --> docs[("Dokumen")]
+    agent -- "recall_memory" --> mem[("Memory")]
+    agent --> verifier["Verifier<br/>angka harus terlacak ke SQL"]
+    verifier --> ans(["Jawaban + SQL + sitasi<br/>+ confidence + status"])
 ```
 
 ## Struktur repo
