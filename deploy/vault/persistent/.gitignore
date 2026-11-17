@@ -1,0 +1,4 @@
+# berisi unseal key + root token / env token - JANGAN pernah masuk version control
+.vault-init.json
+vault.env.bat
+data/

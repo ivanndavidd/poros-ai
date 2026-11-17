@@ -1,0 +1,54 @@
+<svg viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#1f2430">
+  <defs>
+    <marker id="t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+  </defs>
+  <text x="20" y="26" font-size="15" font-weight="600">Feature 1: provisioning a tenant (admin console)</text>
+
+  <rect x="24" y="52" width="150" height="54" fill="#eef2ff" stroke="#c7d2fe" rx="6"/>
+  <text x="34" y="74" font-size="11" font-weight="600">Create tenant</text>
+  <text x="34" y="90" font-size="11">name, icon, status</text>
+
+  <rect x="24" y="130" width="260" height="128" fill="#ffffff" stroke="#374151" rx="6"/>
+  <text x="34" y="150" font-size="11" font-weight="600">Add data sources (all three first-class)</text>
+  <text x="34" y="170" font-size="11">Database: typed connection form per type;</text>
+  <text x="34" y="184" font-size="11">test connection, then auto-scan to an MDL</text>
+  <text x="34" y="198" font-size="11">(table/column names, guessed PII columns)</text>
+  <text x="34" y="216" font-size="11">Documents: upload PDF/DOCX/PPTX/MD/TXT;</text>
+  <text x="34" y="230" font-size="11">chunk, embed, per-doc role ACL</text>
+  <text x="34" y="248" font-size="11">Memory: per-user notes, admin or auto</text>
+
+  <rect x="316" y="130" width="250" height="60" fill="#f7f8fa" stroke="#c8ccd4" rx="6"/>
+  <text x="326" y="150" font-size="11" font-weight="600">Model setup (multi-LLM)</text>
+  <text x="326" y="166" font-size="11">pick provider + models via LiteLLM;</text>
+  <text x="326" y="181" font-size="11">store the provider key encrypted</text>
+
+  <rect x="316" y="204" width="250" height="82" fill="#fef2f2" stroke="#fecaca" rx="6"/>
+  <text x="326" y="224" font-size="11" font-weight="600">RBAC: roles + policy</text>
+  <text x="326" y="240" font-size="11">per role: authorized_tables, denied/PII</text>
+  <text x="326" y="254" font-size="11">columns, row filter, can_see_pii, skills</text>
+  <text x="326" y="270" font-size="11">map external IdP role ids to tenant roles</text>
+  <text x="326" y="282" font-size="10" fill="#6b7280">optional per-tenant JWT verification config</text>
+
+  <rect x="600" y="130" width="270" height="80" fill="#f0fdf4" stroke="#86efac" rx="6"/>
+  <text x="610" y="150" font-size="11" font-weight="600">Issue app credentials</text>
+  <text x="610" y="167" font-size="11">mint API key(s) = app identity</text>
+  <text x="610" y="182" font-size="11">set the JWT secret the app will sign with</text>
+  <text x="610" y="199" font-size="11" fill="#6b7280">consumer app is now wired in</text>
+
+  <rect x="600" y="230" width="270" height="70" fill="#eef2ff" stroke="#c7d2fe" rx="6"/>
+  <text x="610" y="250" font-size="11" font-weight="600">Result</text>
+  <text x="610" y="267" font-size="11">a governed tenant that any consumer app</text>
+  <text x="610" y="282" font-size="11">reaches through the same /v1 API + SDK</text>
+
+  <line x1="99" y1="106" x2="99" y2="130" stroke="#4b5563" marker-end="url(#t)"/>
+  <line x1="284" y1="160" x2="316" y2="160" stroke="#4b5563" marker-end="url(#t)"/>
+  <line x1="441" y1="190" x2="441" y2="204" stroke="#4b5563" marker-end="url(#t)"/>
+  <line x1="566" y1="230" x2="600" y2="180" stroke="#4b5563" marker-end="url(#t)"/>
+  <line x1="735" y1="210" x2="735" y2="230" stroke="#4b5563" marker-end="url(#t)"/>
+
+  <text x="24" y="330" font-size="11" fill="#6b7280">Metadata for all of this lives in one SQLite control-plane database (admin.db). Connection secrets, provider keys and the</text>
+  <text x="24" y="348" font-size="11" fill="#6b7280">tenant JWT secret are stored encrypted; the schema map (MDL), role policies, API keys and logs are stored in the clear.</text>
+  <text x="24" y="372" font-size="11" fill="#b91c1c">Today: two live tenants. Acme (one keyless BigQuery source, 104 tables) and Maintenance App (two MySQL sources, 61 tables).</text>
+</svg>

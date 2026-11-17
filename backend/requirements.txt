@@ -1,0 +1,65 @@
+# PINNED (2026-08-12). Every version below is the one the 618-test suite passes on.
+#
+# sqlglot is pinned first among equals: govern() parses every consumer query with it, so
+# the parser IS the governance boundary. A floating range meant a `pip install` on a new
+# day could change how SQL is understood underneath the security control — and that is not
+# theoretical, the read-only bypass fixed in 61fbe98 depends on which args sqlglot puts on
+# an exp.Select. Upgrading it is a deliberate act: bump the pin, then run
+# tests/test_govern_adversarial.py before trusting the result.
+#
+# Upgrading anything here: change the pin, run the suite, commit the pin with the reason.
+
+# --- core (required) ---
+fastapi==0.138.2
+uvicorn[standard]==0.49.0
+duckdb==1.5.4
+sqlglot==30.12.0          # governance boundary — see note above
+pydantic==2.13.4
+python-multipart==0.0.32  # file uploads (doc-RAG)
+cryptography==50.0.0      # encrypt secrets at rest (DB passwords, LLM keys)
+python-dotenv==1.2.2      # load local .env into os.environ at startup (see app/__init__.py)
+requests==2.34.2          # server-side OAuth authorization-code token exchange
+google-auth==2.55.1       # verify Google OIDC signature / issuer / audience / expiry
+
+# --- LLM gateway (Feature 1.4) ---
+litellm==1.90.0           # provider-agnostic gateway (OpenAI/Anthropic/Gemini/Azure/...)
+
+# --- metadata store (REQUIRED) + Postgres data sources ---
+psycopg2-binary==2.9.12   # PostgreSQL: the metadata store (ADMIN_DB_URL) + Postgres data sources + pgvector
+
+# --- DB drivers (install per data source) ---
+PyMySQL==1.2.0            # MySQL
+google-cloud-bigquery==3.42.1
+# pyodbc                  # SQL Server (also needs a system ODBC driver)
+
+# --- optional vector store (VECTOR_BACKEND=pgvector) ---
+# No extra python package needed — vectors go over psycopg2 as ::vector text literals.
+# Requires a Postgres with the `pgvector` extension (e.g. docker image pgvector/pgvector),
+# reachable via VECTOR_PG_DSN. See deploy/pgvector/README.md.
+
+# --- doc parsing (Feature 1.2) ---
+pypdf==6.21.2             # PDF (text-based)
+python-docx==1.2.0        # DOCX
+python-pptx==1.0.2        # PPTX (slide text + tables + speaker notes)
+XlsxWriter==3.2.9         # generated report workbooks (MBR); BSD-2-Clause, OSV clean 2026-10-13
+xlrd==2.0.1               # attached old .xls exports (Lazada product report); BSD, pure Python, .xls only
+
+# --- OCR for images inside PPTX/PDF (opt-in via Document-config "ocr" toggle) ---
+# Reads text baked into pictures/screenshots/scanned pages. Best-effort: without these
+# (or the tesseract binary) OCR is silently skipped. Requires the Tesseract BINARY too:
+#   Windows: install "Tesseract-OCR" + set TESSERACT_CMD to tesseract.exe if not on PATH
+#   Linux:   apt-get install tesseract-ocr tesseract-ocr-ind tesseract-ocr-eng
+# Language(s) via OCR_LANG (default "ind+eng") — install the matching traineddata.
+pytesseract==0.3.13       # Tesseract wrapper
+# Pillow 13 (fixes the 2026 CVE batch) needs Python >= 3.11; the image runs 3.12. The 3.10
+# line only lets an old local venv keep installing; it never applies in the image.
+pillow==13.0.0 ; python_version >= "3.11"   # image loading for OCR; python-pptx reads images
+pillow==12.3.0 ; python_version < "3.11"
+
+# --- local neural embeddings + cross-encoder rerank (doc-RAG quality) ---
+# default model: paraphrase-multilingual-MiniLM-L12-v2 (env ST_EMBED_MODEL);
+# reranker: cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 (env RAG_RERANK_MODEL, RAG_RERANK=0 to disable)
+sentence-transformers==5.6.0
+
+# --- end-user identity / Pattern B (Feature 1.5) ---
+PyJWT==2.14.0             # verify end-user JWT (Authorization: Bearer); role drives governance

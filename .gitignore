@@ -1,0 +1,34 @@
+# ---------- python ----------
+__pycache__/
+*.pyc
+.venv/
+
+# ---------- node / build ----------
+node_modules/
+dist/
+
+# ---------- env & tooling lokal ----------
+.env
+.env.*
+# template konfigurasi (aman, tanpa secret) — WAJIB ikut ke Git:
+!.env.example
+!backend/.env.example
+.claude/
+CLAUDE.md
+
+# ---------- DATA & RAHASIA: JANGAN PERNAH DI-PUSH ----------
+# metadata store (berisi API key aktif, konfigurasi tenant, chunks dokumen)
+*.db
+*.db.bak-*
+*.sqlite
+# database contoh/demo (regenerable via seed)
+*.duckdb
+*.duckdb.wal
+# file dokumen asli milik tenant (confidential)
+backend/app/files/
+# Vault persisten: unseal key + root token + env token + data raft
+deploy/vault/persistent/.vault-init.json
+deploy/vault/persistent/vault.env.bat
+deploy/vault/persistent/data/
+# model cache (kalau sampai dibuat lokal)
+.cache/

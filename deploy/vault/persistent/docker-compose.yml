@@ -1,0 +1,19 @@
+# Vault PERSISTEN (lokal) — data tersimpan di docker volume `vault-data`, TAHAN restart.
+# Beda dari dev-mode: perlu init sekali + unseal setiap start. Keduanya otomatis lewat
+# setup_vault.py (atau run_vault.bat di root repo). TLS sengaja mati: pemakaian LOKAL saja;
+# produksi wajib TLS + AppRole (lihat ../README.md bagian produksi).
+services:
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: tenantos-vault-persist
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault-data:/vault/file
+      - ./vault-config.hcl:/vault/config/vault-config.hcl:ro
+    command: server            # entrypoint image otomatis memuat semua config di /vault/config/
+    cap_add:
+      - IPC_LOCK
+    restart: unless-stopped
+volumes:
+  vault-data:

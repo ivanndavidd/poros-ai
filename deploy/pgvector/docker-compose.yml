@@ -1,0 +1,35 @@
+# Local Postgres + pgvector for the doc-RAG vector store (VECTOR_BACKEND=pgvector).
+# The `pgvector/pgvector` image is stock Postgres with the extension preinstalled.
+#
+#   docker compose -f deploy/pgvector/docker-compose.yml up -d
+#   # then point the backend at it:
+#   set PGVECTOR_PASSWORD=<local-only-password>
+#   set PGPASSWORD=%PGVECTOR_PASSWORD%
+#   set VECTOR_BACKEND=pgvector
+#   set VECTOR_PG_DSN=postgresql://poros@localhost:5433/poros_vec
+#   set VECTOR_PG_DIM=384        # match your embedder (default multilingual ST = 384)
+#
+# The extension + table + HNSW index are created automatically on first write
+# (vectorstore._ensure_schema). After switching, POST /admin/vector/rebuild once to
+# populate the mirror from the existing SQLite chunks.
+services:
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: poros-pgvector
+    restart: unless-stopped          # bangkit lagi otomatis setelah reboot / Docker restart
+    environment:
+      POSTGRES_USER: ${PGVECTOR_USER:-poros}
+      POSTGRES_PASSWORD: ${PGVECTOR_PASSWORD:?set PGVECTOR_PASSWORD before starting pgvector}
+      POSTGRES_DB: ${PGVECTOR_DATABASE:-poros_vec}
+    ports:
+      - "5433:5432"          # 5433 on the host to avoid clashing with a local Postgres
+    volumes:
+      - poros_pgvector:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  poros_pgvector:

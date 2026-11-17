@@ -1,0 +1,80 @@
+<svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#1f2430">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+  </defs>
+  <text x="20" y="26" font-size="15" font-weight="600">Consumer request path: strict Pattern B (every /v1 call)</text>
+
+  <!-- left: the caller -->
+  <rect x="24" y="70" width="180" height="92" fill="#eef2ff" stroke="#c7d2fe" rx="6"/>
+  <text x="34" y="92" font-weight="600">Consumer app</text>
+  <text x="34" y="110" font-size="11">signs a JWT for the</text>
+  <text x="34" y="124" font-size="11">logged-in end user with</text>
+  <text x="34" y="138" font-size="11">the tenant's shared secret</text>
+  <text x="34" y="155" font-size="11" fill="#6b7280">sub = user id, role claim</text>
+
+  <rect x="24" y="196" width="180" height="66" fill="#f7f8fa" stroke="#c8ccd4" rx="6"/>
+  <text x="34" y="217" font-size="11" font-weight="600">Sends POST /v1/chat</text>
+  <text x="34" y="233" font-size="11">X-API-Key: sk_...</text>
+  <text x="34" y="249" font-size="11">Authorization: Bearer JWT</text>
+
+  <line x1="114" y1="162" x2="114" y2="196" stroke="#4b5563" stroke-width="1.4" marker-end="url(#a)"/>
+
+  <!-- middle: the five ordered checks -->
+  <rect x="268" y="70" width="250" height="52" fill="#ffffff" stroke="#374151" rx="6"/>
+  <text x="278" y="89" font-size="11" font-weight="600">1. API key check (require_api_key)</text>
+  <text x="278" y="104" font-size="10.5">look up sk_ key: active, not expired</text>
+  <text x="278" y="117" font-size="10.5" fill="#6b7280">gives tenant id; no role. else 401</text>
+
+  <rect x="268" y="134" width="250" height="48" fill="#ffffff" stroke="#374151" rx="6"/>
+  <text x="278" y="153" font-size="11" font-weight="600">2. Rate limit (per API key, 60s)</text>
+  <text x="278" y="168" font-size="10.5">in-memory sliding window</text>
+  <text x="278" y="178" font-size="9.5" fill="#6b7280">over limit: 429 retry_after</text>
+
+  <rect x="268" y="194" width="250" height="64" fill="#ffffff" stroke="#374151" rx="6"/>
+  <text x="278" y="213" font-size="11" font-weight="600">3. Verify JWT (verify_end_user)</text>
+  <text x="278" y="228" font-size="10.5">tenant secret, else env JWT_SECRET</text>
+  <text x="278" y="242" font-size="10.5">HS256/384/512, 120s leeway</text>
+  <text x="278" y="253" font-size="9.5" fill="#6b7280">bad/absent token: 401. sub = user id</text>
+
+  <rect x="268" y="270" width="250" height="84" fill="#fef2f2" stroke="#fecaca" rx="6"/>
+  <text x="278" y="289" font-size="11" font-weight="600">4. Resolve role (deny by default)</text>
+  <text x="278" y="304" font-size="10.5">read role_claim value(s)</text>
+  <text x="278" y="318" font-size="10.5">a) role_mappings alias first</text>
+  <text x="278" y="332" font-size="10.5">b) exact tenant role name second</text>
+  <text x="278" y="347" font-size="9.5" fill="#b91c1c">no match: 403, value recorded unmapped</text>
+
+  <!-- entry: Sends box -> check 1, orthogonal (right then up) -->
+  <path d="M 204 229 L 236 229 L 236 96 L 268 96" fill="none" stroke="#4b5563" stroke-width="1.4" marker-end="url(#a)"/>
+
+  <!-- between checks: vertical -->
+  <line x1="393" y1="122" x2="393" y2="134" stroke="#4b5563" stroke-width="1.4" marker-end="url(#a)"/>
+  <line x1="393" y1="182" x2="393" y2="194" stroke="#4b5563" stroke-width="1.4" marker-end="url(#a)"/>
+  <line x1="393" y1="258" x2="393" y2="270" stroke="#4b5563" stroke-width="1.4" marker-end="url(#a)"/>
+
+  <!-- right: the governed pipeline -->
+  <rect x="582" y="150" width="290" height="200" fill="#f0fdf4" stroke="#86efac" rx="6"/>
+  <text x="592" y="172" font-weight="600">5. Governed pipeline runs as that role</text>
+  <text x="592" y="192" font-size="10.5">gatekeeper, router, agent, tools</text>
+  <text x="592" y="206" font-size="10.5">(run_sql, search_docs, recall_memory),</text>
+  <text x="592" y="220" font-size="10.5">every SQL through govern(), verify + repair</text>
+  <text x="600" y="244" font-size="10.5" font-weight="600" fill="#374151">Role decides:</text>
+  <text x="600" y="260" font-size="10.5">- which tables (authorized_tables)</text>
+  <text x="600" y="276" font-size="10.5">- which rows (RLAC row filter)</text>
+  <text x="600" y="292" font-size="10.5">- whether PII is visible (CLAC)</text>
+  <text x="600" y="308" font-size="10.5">- which skills are allowed</text>
+  <text x="600" y="328" font-size="10.5" fill="#6b7280">memory scoped to (tenant, sub)</text>
+
+  <!-- exit: check 4 -> pipeline, orthogonal (right then up) -->
+  <path d="M 518 312 L 550 312 L 550 250 L 582 250" fill="none" stroke="#4b5563" stroke-width="1.4" marker-end="url(#a)"/>
+  <text x="524" y="266" font-size="9.5" fill="#6b7280">role resolved</text>
+
+  <rect x="24" y="392" width="848" height="140" fill="#fff7ed" stroke="#fdba74" rx="6"/>
+  <text x="34" y="414" font-weight="600" fill="#9a3412">Why two credentials</text>
+  <text x="34" y="436" font-size="11">The API key answers "which app is calling". It drives tenant scoping, metering and rate limits, and carries no role.</text>
+  <text x="34" y="453" font-size="11">The JWT answers "which person is asking, in what role". Its role claim is the only thing that drives governance, and its</text>
+  <text x="34" y="470" font-size="11">sub is the only source of the per-user memory identity. The request body's user_id field is deliberately ignored.</text>
+  <text x="34" y="493" font-size="11" fill="#b91c1c">Caveat: tenants without their own JWT secret share the env JWT_SECRET, so their tokens are not tenant-bound. Only the</text>
+  <text x="34" y="510" font-size="11" fill="#b91c1c">Maintenance App tenant has a per-tenant secret today; the Acme tenant relies on the shared env secret.</text>
+</svg>

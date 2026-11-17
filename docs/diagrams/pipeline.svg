@@ -1,0 +1,44 @@
+<svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#1f2430">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="24" font-size="15" font-weight="600">Feature 2: governed answer pipeline (POST /v1/chat and /v1/chat_stream)</text>
+
+  <!-- row 1 -->
+  <rect x="20" y="48" width="160" height="72" fill="#eef2ff" stroke="#c7d2fe" rx="4"/>
+  <text x="30" y="66" font-size="11" font-weight="600">1. Consumer request</text>
+  <text x="30" y="81" font-size="11">message + history (&lt;=50 turns)</text>
+  <text x="30" y="95" font-size="11">X-API-Key header</text>
+  <text x="30" y="109" font-size="11">Authorization: Bearer JWT</text>
+
+  <rect x="206" y="48" width="170" height="72" fill="#eef2ff" stroke="#c7d2fe" rx="4"/>
+  <text x="216" y="66" font-size="11" font-weight="600">2. _effective()</text>
+  <text x="216" y="81" font-size="11">API key -&gt; tenant, rate limit</text>
+  <text x="216" y="95" font-size="11">JWT verify -&gt; sub (user id)</text>
+  <text x="216" y="109" font-size="11">role claim -&gt; tenant role</text>
+
+  <rect x="402" y="48" width="170" height="72" fill="#f7f8fa" stroke="#c8ccd4" rx="4"/>
+  <text x="412" y="66" font-size="11" font-weight="600">3. Gatekeeper</text>
+  <text x="412" y="81" font-size="11">LLM screen + regex heuristic</text>
+  <text x="412" y="95" font-size="11" fill="#b91c1c">raw message goes to DeepSeek</text>
+  <text x="412" y="109" font-size="11" fill="#b91c1c">before the block decision</text>
+
+  <rect x="598" y="48" width="160" height="72" fill="#f7f8fa" stroke="#c8ccd4" rx="4"/>
+  <text x="608" y="66" font-size="11" font-weight="600">4. Router</text>
+  <text x="608" y="81" font-size="11">complex vs simple model,</text>
+  <text x="608" y="95" font-size="11">budget downgrade (advisory,</text>
+  <text x="608" y="109" font-size="11">inert with today's config)</text>
+
+  <rect x="784" y="48" width="156" height="72" fill="#f7f8fa" stroke="#c8ccd4" rx="4"/>
+  <text x="794" y="66" font-size="11" font-weight="600">5. Conversation context</text>
+  <text x="794" y="81" font-size="11">sanitize history, window,</text>
+  <text x="794" y="95" font-size="11">optional LLM summary,</text>
+  <text x="794" y="109" font-size="11">token cap keeps the tail</text>
+
+  <line x1="180" y1="84" x2="206" y2="84" stroke="#4b5563" stroke-width="1.4" marker-end="url(#arr2)"/>
+  <line x1="376" y1="84" x2="402" y2="84" stroke="#4b5563" stroke-width="1.4" marker-end="url(#arr2)"/>
+  <line x1="572" y1="84" x2="598" y2="84" stroke="#4b5563" stroke-width="1.4" marker-end="url(#arr2)"/>
+  <line x1="758" y1="84" x2="784" y2="84" stroke="#4b5563" stroke-width="1.4" marker-

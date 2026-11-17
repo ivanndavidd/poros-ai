@@ -1,0 +1,17 @@
+# Vault DEV MODE — for local development ONLY.
+#   * in-memory storage: EVERY restart wipes all stored secrets
+#   * auto-unsealed, single fixed root token (tenantos-dev-root)
+#   * KV v2 already mounted at `secret/`
+# Production needs raft storage + TLS + init/unseal + AppRole — see README.md.
+services:
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: tenantos-vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: tenantos-dev-root
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    restart: unless-stopped

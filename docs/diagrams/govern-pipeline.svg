@@ -1,0 +1,63 @@
+<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12" fill="#1f2430">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+  </defs>
+  <text x="20" y="26" font-size="15" font-weight="600">govern(): the single choke point every SQL statement passes</text>
+  <text x="20" y="44" font-size="11" fill="#6b7280">backend/app/governance/engine.py. Two call sites only: /v1/query and the shared skill path. Both run only govern()'s output.</text>
+
+  <rect x="40" y="64" width="200" height="50" fill="#eef2ff" stroke="#c7d2fe" rx="6"/>
+  <text x="50" y="84" font-size="11" font-weight="600">Candidate SQL</text>
+  <text x="50" y="100" font-size="11">from NL to SQL, tool loop, or raw</text>
+
+  <!-- ordered checks -->
+  <g>
+    <rect x="300" y="60" width="470" height="40" fill="#ffffff" stroke="#374151" rx="5"/>
+    <text x="312" y="78" font-size="11" font-weight="600">0. Not empty; parses with sqlglot</text>
+    <text x="312" y="93" font-size="11" fill="#6b7280">else NO_SQL / SQL_PARSE_ERROR (no crash on garbage input)</text>
+
+    <rect x="300" y="108" width="470" height="46" fill="#fef2f2" stroke="#fecaca" rx="5"/>
+    <text x="312" y="126" font-size="11" font-weight="600">1. Read-only</text>
+    <text x="312" y="141" font-size="11">root must be SELECT/UNION/subquery; reject Insert/Update/Delete/DDL/Command anywhere,</text>
+    <text x="312" y="152" font-size="10" fill="#6b7280">incl. CTE-wrapped DML and multi-statement. READ_ONLY. This is a parser control, not a DB privilege.</text>
+
+    <rect x="300" y="162" width="470" height="44" fill="#ffffff" stroke="#374151" rx="5"/>
+    <text x="312" y="180" font-size="11" font-weight="600">2. Wren strict policy (Apache-2.0, vendored unchanged)</text>
+    <text x="312" y="195" font-size="11">every table must be an MDL model; block table-valued functions + denied functions</text>
+
+    <rect x="300" y="214" width="470" height="40" fill="#ffffff" stroke="#374151" rx="5"/>
+    <text x="312" y="232" font-size="11" font-weight="600">3. Per-role table allow-list (authorized_tables)</text>
+    <text x="312" y="247" font-size="11" fill="#6b7280">referenced tables must be in the role's set. ROLE_TABLE_DENIED</text>
+
+    <rect x="300" y="262" width="470" height="52" fill="#fef2f2" stroke="#fecaca" rx="5"/>
+    <text x="312" y="280" font-size="11" font-weight="600">4. CLAC: column access</text>
+    <text x="312" y="295" font-size="11">expand SELECT * against the schema first, then block PII + denied columns.</text>
+    <text x="312" y="308" font-size="10" fill="#6b7280">Skipped only for roles with can_see_pii. Star-expansion closes the SELECT * leak. CLAC_DENIED</text>
+
+    <rect x="300" y="322" width="470" height="54" fill="#fef2f2" stroke="#fecaca" rx="5"/>
+    <text x="312" y="340" font-size="11" font-weight="600">5. RLAC: row filter injection</text>
+    <text x="312" y="355" font-size="11">add role's row filter as a sqlglot AST literal (never string concat).</text>
+    <text x="312" y="368" font-size="10" fill="#6b7280">UNION roots wrapped as SELECT * FROM (...) WHERE filter. Injection-safe by construction.</text>
+  </g>
+
+  <rect x="300" y="392" width="470" height="42" fill="#f0fdf4" stroke="#86efac" rx="6"/>
+  <text x="312" y="412" font-size="11" font-weight="600">Returns rewritten "safe" SQL string</text>
+  <text x="312" y="427" font-size="11" fill="#6b7280">only this string is ever sent to a connector's run()</text>
+
+  <line x1="240" y1="89" x2="300" y2="80" stroke="#4b5563" marker-end="url(#g)"/>
+  <line x1="535" y1="100" x2="535" y2="108" stroke="#4b5563" marker-end="url(#g)"/>
+  <line x1="535" y1="154" x2="535" y2="162" stroke="#4b5563" marker-end="url(#g)"/>
+  <line x1="535" y1="206" x2="535" y2="214" stroke="#4b5563" marker-end="url(#g)"/>
+  <line x1="535" y1="254" x2="535" y2="262" stroke="#4b5563" marker-end="url(#g)"/>
+  <line x1="535" y1="314" x2="535" y2="322" stroke="#4b5563" marker-end="url(#g)"/>
+  <line x1="535" y1="376" x2="535" y2="392" stroke="#4b5563" marker-end="url(#g)"/>
+
+  <rect x="40" y="452" width="820" height="130" fill="#fff7ed" stroke="#fdba74" rx="6"/>
+  <text x="52" y="474" font-weight="600" fill="#9a3412">Two residual gaps an auditor should know</text>
+  <text x="52" y="496" font-size="11">PII masking before the LLM matches result column names against the flagged PII list. A privileged (can_see_pii) role whose</text>
+  <text x="52" y="512" font-size="11">SQL aliases a PII column (SELECT email AS contact) produces a name that no longer matches, so real values reach the model.</text>
+  <text x="52" y="530" font-size="11">Non-privileged roles are still protected because CLAC blocks the column reference itself.</text>
+  <text x="52" y="552" font-size="11">PII flagging itself is a column-name substring heuristic. It over-flags (Item_Name) and will miss oddly named identifiers</text>
+  <text x="52" y="568" font-size="11">(account_no, national id) unless an admin curates the list. Document text and memory notes are sent to the model unmasked.</text>
+</svg>

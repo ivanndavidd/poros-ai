@@ -1,0 +1,47 @@
+/* ===========================================================
+   TenantOS — Governance Platform (ported from Claude Design)
+   Light/dark tokens via [data-theme]; components style inline.
+   =========================================================== */
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --surface-2:#f1f4f8; --border:#e4e8ee;
+  --fg:#0f1729; --fg-muted:#5a6475; --fg-subtle:#8b95a6;
+  --accent:#2563eb; --accent-soft:#eaf1ff;
+  --success:#16a34a; --success-soft:#e7f6ec; --warn:#d97706; --danger:#dc2626;
+  --sidebar:#ffffff;
+}
+[data-theme="dark"]{
+  --bg:#0b0f15; --surface:#141a22; --surface-2:#1b222c; --border:#283140;
+  --fg:#e8edf4; --fg-muted:#97a3b2; --fg-subtle:#6a7583;
+  --accent:#2563eb; --accent-soft:#16243d;
+  --success:#22c55e; --success-soft:#10241a; --warn:#f59e0b; --danger:#f87171;
+  --sidebar:#0f141b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%}
+body{margin:0;font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;font-size:14px;
+  color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+@keyframes dcfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes dcpop{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:none}}
+@keyframes dcblink{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes dcspin{to{transform:rotate(360deg)}}
+.msym{font-family:'Material Symbols Outlined',sans-serif;font-weight:400;font-style:normal;line-height:1;
+  letter-spacing:normal;text-transform:none;white-space:nowrap;-webkit-font-feature-settings:'liga';
+  font-feature-settings:'liga';display:inline-flex;align-items:center;justify-content:center}
+.mono{font-family:'IBM Plex Mono',monospace}
+input,button,select,textarea{font-family:inherit}
+input::placeholder,textarea::placeholder{color:var(--fg-subtle)}
+button{cursor:pointer}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:dcspin .6s linear infinite}
+.fade{animation:dcfade .22s ease}
+.pop{animation:dcpop .16s ease}
+.hov-card{transition:.15s}
+.hov-card:hover{border-color:var(--accent)!important;box-shadow:0 6px 22px -12px rgba(37,99,235,.35);transform:translateY(-2px)}
+.hov-accent:hover{border-color:var(--accent)!important;color:var(--accent)!important}
+.toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:9px;z-index:120;max-width:380px}
+.toast{display:flex;gap:10px;align-items:flex-start;background:#0f1730;color:#eaf0ff;padding:11px 14px;
+  border-radius:11px;box-shadow:0 12px 40px rgba(8,15,40,.4);font-size:13px;border-left:3px solid var(--accent);animation:dcfade .18s ease}
+.toast.ok{border-left-color:#16b894}.toast.bad{border-left-color:#ff6b5e}.toast.warn{border-left-color:#f2b950}
+.toast .x{margin-left:auto;cursor:pointer;opacity:.6;border:0;background:transparent;color:inherit;padding:0}

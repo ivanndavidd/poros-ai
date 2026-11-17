@@ -1,0 +1,17 @@
+# Vault persisten lokal — single node, integrated storage (raft).
+# TLS sengaja dimatikan: HANYA untuk pemakaian lokal/dev di mesin sendiri.
+ui            = true
+disable_mlock = true
+
+storage "raft" {
+  path    = "/vault/file"     # direktori data resmi image (entrypoint meng-chown-nya ke user vault)
+  node_id = "tenantos-vault-1"
+}
+
+listener "tcp" {
+  address     = "0.0.0.0:8200"
+  tls_disable = 1
+}
+
+api_addr     = "http://127.0.0.1:8200"
+cluster_addr = "http://127.0.0.1:8201"
